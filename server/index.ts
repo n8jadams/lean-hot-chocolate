@@ -12,7 +12,8 @@ let machine = interpret(leanHotChocolateMachine) // Machine instance with intern
   .onTransition((state) => {
     // publish(state)
   })
-  .onChange((state) => {
+  .onChange((context) => {
+    console.log(context)
     // publish(state)
   })
   .start();
@@ -29,11 +30,11 @@ app.listen(1234, () => {
 function forwardEvent(req: Request, res: Response) {
   const setUserId = () => {
     const id = uuidv4();
-    req.cookies["lean-hot-chocolate"] = id;
     return id;
   };
   const getUserId = () => {
-    return req.cookies["lean-hot-chocolate"];
+    const cookie = req.cookies["lean-hot-chocolate"];
+    return cookie
   };
 
   machine.send({ ...req.body.event, setUserId, getUserId });

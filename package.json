@@ -31,7 +31,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start-server": "ts-node server/index.ts",
-    "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect server/index.ts\""
+    "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\""
   },
   "eslintConfig": {
     "extends": [

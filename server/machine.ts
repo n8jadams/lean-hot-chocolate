@@ -154,10 +154,10 @@ export const leanHotChocolateMachine = Machine<
         },
         REMOVE_TOPIC: {
           actions: assign(({ topics }, { topicId, getUserId }) => {
-            const topicToRemove = topics.find((topic) => topicId === topic.id);
+            const indexToRemove = topics.findIndex((topic) => topicId === topic.id);
             const userId = getUserId();
-            if (topicToRemove.createdByUserId === userId) {
-              topics = topics.filter((topic) => topic.id !== topicId);
+            if (topics[indexToRemove].createdByUserId === userId) {
+              topics.splice(indexToRemove, 1);
             }
           }),
         },
