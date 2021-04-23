@@ -3,14 +3,19 @@ import { assign } from "@xstate/immer";
 import { v4 as uuidv4 } from "uuid";
 
 const TOTAL_AVAILABLE_TOPIC_VOTES = 1;
-const DISCUSSION_TIME_IN_SEC = 60 * 5;
+const DISCUSSION_TIME_IN_SEC = 5;
 
 interface LeanHotChocolateMachineSchema {
   states: {
     lobby: {};
     addingTopics: {};
     topicVoting: {};
-    discussion: {};
+    discussion: {
+      states: {
+        determineContinue: {};
+        decrementTimer: {};
+      };
+    };
     continueVoting: {};
   };
 }
@@ -70,8 +75,8 @@ type LeanHotChocolateMachineEvent =
     };
 
 const enum ContinueVote {
-  YES,
   NO,
+  YES,
 }
 
 type UserId = string;
@@ -121,6 +126,13 @@ export const leanHotChocolateMachine = Machine<
   context: initialContext,
   states: {
     lobby: {
+      entry: assign((context) => {
+        context.topics = [];
+        context.topicVoteResults = [];
+        for (let i = 0; i < context.users.length; i++) {
+          context.users[i].topicVotesAvailable = TOTAL_AVAILABLE_TOPIC_VOTES;
+        }
+      }),
       on: {
         USER_JOINED: {
           actions: assign(({ users }, { username, setUserId }) => {
@@ -154,7 +166,9 @@ export const leanHotChocolateMachine = Machine<
         },
         REMOVE_TOPIC: {
           actions: assign(({ topics }, { topicId, getUserId }) => {
-            const indexToRemove = topics.findIndex((topic) => topicId === topic.id);
+            const indexToRemove = topics.findIndex(
+              (topic) => topicId === topic.id
+            );
             const userId = getUserId();
             if (topics[indexToRemove].createdByUserId === userId) {
               topics.splice(indexToRemove, 1);
@@ -177,7 +191,7 @@ export const leanHotChocolateMachine = Machine<
               const topicIndex = topics.findIndex(
                 (topic) => topicId === topic.id
               );
-              if (topicIndex) {
+              if (topicIndex !== -1) {
                 user.topicVotesAvailable--;
                 topics[topicIndex].votesCastFor.push(userId);
               }
@@ -194,12 +208,12 @@ export const leanHotChocolateMachine = Machine<
                 (topic) => topicId === topic.id
               );
               const topic = topics[topicIndex];
-              const userVotedOnTopic = topic.votesCastFor.includes(userId);
-              if (topicIndex && userVotedOnTopic) {
+              const voteCastIndex = topic.votesCastFor.findIndex(
+                (vote) => vote === userId
+              );
+              if (topicIndex !== -1 && voteCastIndex !== -1) {
                 user.topicVotesAvailable++;
-                topic.votesCastFor = topic.votesCastFor.filter(
-                  (votedForUserId) => votedForUserId !== userId
-                );
+                topics[topicIndex].votesCastFor.splice(voteCastIndex, 1);
               }
             }
           }),
@@ -207,50 +221,71 @@ export const leanHotChocolateMachine = Machine<
         START_DISCUSSION: {
           actions: assign(({ topics, topicVoteResults }) => {
             /** @TODO - Handle tiebreaker scenario because order of insertion isn't objective */
-            topics = topics.sort(
+            const sortedTopics = topics.sort(
               (t1, t2) => t1.votesCastFor.length - t2.votesCastFor.length
             );
-            topicVoteResults = topics.map((topic) => topic.id);
+            for (const topic of sortedTopics) {
+              topicVoteResults.push(topic.id);
+            }
           }),
           target: "discussion",
         },
       },
     },
     discussion: {
-      entry: assign(({ timer, continueVotes }) => {
-        timer = DISCUSSION_TIME_IN_SEC;
-        continueVotes = {
+      initial: "determineContinue",
+      entry: assign((context) => {
+        context.timer = DISCUSSION_TIME_IN_SEC;
+        context.continueVotes = {
           [ContinueVote.YES]: [],
           [ContinueVote.NO]: [],
         };
       }),
-      after: {
-        1000: [
-          {
-            cond: ({ timer }) => {
-              return timer === 0;
+      states: {
+        determineContinue: {
+          always: [
+            {
+              cond: ({ timer }) => {
+                return timer === 0;
+              },
+              target: "#continueVoting",
             },
-            target: "continueVoting",
+            {
+              target: "decrementTimer",
+            },
+          ],
+        },
+        decrementTimer: {
+          after: {
+            1000: {
+              actions: assign((context) => {
+                context.timer--;
+              }),
+              target: "determineContinue",
+            },
           },
-          {
-            actions: assign((context) => {
-              context.timer--;
-            }),
-          },
-        ],
+        },
       },
       on: {
-        SKIP_TO_NEXT_TOPIC: {
-          actions: assign(({ topicVoteResults }) => {
-            topicVoteResults.shift();
-          }),
-        },
+        SKIP_TO_NEXT_TOPIC: [
+          {
+            cond: ({ topicVoteResults }) => topicVoteResults.length === 1,
+            target: "lobby",
+          },
+          {
+            actions: assign(({ topicVoteResults }) => {
+              topicVoteResults.shift();
+            }),
+            target: "discussion",
+          },
+        ],
         END_MEETING: {
           target: "lobby",
         },
       },
     },
     continueVoting: {
+      id: "continueVoting",
       on: {
         PLACE_CONTINUE_VOTE: {
           actions: assign(({ continueVotes }, { value, getUserId }) => {
@@ -278,12 +313,20 @@ export const leanHotChocolateMachine = Machine<
         },
         END_CONTINUE_VOTING: [
           {
-            cond: ({ topicVoteResults }) => topicVoteResults.length === 1,
+            cond: ({ topicVoteResults, continueVotes }) =>
+              topicVoteResults.length === 1 &&
+              continueVotes[ContinueVote.NO].length >
+                continueVotes[ContinueVote.YES].length,
             target: "lobby",
           },
           {
-            actions: assign(({ topicVoteResults }) => {
-              topicVoteResults.shift();
+            actions: assign(({ topicVoteResults, continueVotes }) => {
+              if (
+                continueVotes[ContinueVote.NO].length >
+                continueVotes[ContinueVote.YES].length
+              ) {
+                topicVoteResults.shift();
+              }
             }),
             target: "discussion",
           },
