@@ -329,13 +329,15 @@ export const leanHotChocolateMachine = Machine<
     USER_JOINED: {
       actions: assign(({ users }, { username, getUserId }) => {
         const id = getUserId();
-
-        const newUser: User = {
-          id,
-          username,
-          topicVotesAvailable: TOTAL_AVAILABLE_TOPIC_VOTES,
-        };
-        users.push(newUser);
+        const userExists = users.some(user => user.id === id)
+        if(!userExists) {
+          const newUser: User = {
+            id,
+            username,
+            topicVotesAvailable: TOTAL_AVAILABLE_TOPIC_VOTES,
+          };
+          users.push(newUser);
+        }
       }),
     },
   },

@@ -16,6 +16,13 @@ export function TopicVoting({ context, currentUserId }: Props): React.ReactEleme
 	}
 
   return <>
+	<Button
+		color="primary"
+		onClick={() => {
+			send({type: 'START_DISCUSSION'})
+		}}>
+		End voting
+	</Button>
 	<Typography>Remaining votes: {votesLeft(currentUserId, context.users)}</Typography>
 	{context.topics.map((topic) => (
 		<Card key={topic.id} variant="outlined">

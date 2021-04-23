@@ -20,8 +20,13 @@ io.on('connection', (socket) => {
   console.log('User Connected')
 })
 
+// io.on('disconnect', () => {
+
+// })
+
 let machine = interpret(leanHotChocolateMachine) // Machine instance with internal state
   .onTransition((state) => {
+    console.log(state.context)
     io.emit('state change', JSON.stringify({
       state: state.value,
       context: state.context
