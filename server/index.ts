@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import http from 'http'
 import { v4 as uuidv4 } from "uuid";
 import { Server } from "socket.io"
+import path from 'path'
 
 /** @TODO - Establish websocket used for server -> client communication */
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.post("/event", forwardEvent);
+app.use('/', express.static(path.join(__dirname, '../build')))
 const server = http.createServer(app)
 
 const io = new Server(server)
@@ -24,7 +26,7 @@ io.on('connection', (socket) => {
 let machine = interpret(leanHotChocolateMachine) // Machine instance with internal state
   .onTransition((state) => {
     io.emit('state change', JSON.stringify({
-      state: JSON.stringify(state.value),
+      state: state.value,
       context: state.context
     }))
   })

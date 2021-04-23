@@ -18,7 +18,7 @@ continueVoting
 let socket = io()
 
 socket.on('state change', (msg) => {
-
+  console.log(msg)
 })
 
 function App() {
