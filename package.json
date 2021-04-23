@@ -12,6 +12,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/uuid": "^8.3.0",
     "@xstate/immer": "^0.2.0",
+    "concurrently": "^6.0.2",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "cra-build-watch": "^3.4.0",
@@ -32,8 +33,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-server": "ts-node server/index.ts",
-    "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\""
+    "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\"",
+    "tsc": "tsc -p server/tsconfig.json --outDir dist",
+    "dev": "concurrently -n 🫀start,🧠watch-server \"npm run start\" \"npm run watch-server\""
   },
   "eslintConfig": {
     "extends": [

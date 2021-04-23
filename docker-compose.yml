@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+
+    lean-hot-chocolate:
+        environment:
+            - NODE_ENV=development
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        container_name: lean-hot-chocolate
+        volumes:
+            - ./:/home/node/app
+        ports:
+            - "1234:1234"
+            - "9229:9229"
+        command: /bin/sh -c 'npm run dev'

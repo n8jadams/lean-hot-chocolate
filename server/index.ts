@@ -7,9 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Server } from "socket.io"
 import path from 'path'
 
-/** @TODO - Establish websocket used for server -> client communication */
-
-
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,7 +32,6 @@ let machine = interpret(leanHotChocolateMachine) // Machine instance with intern
 server.listen(1234, () => {
   console.log(`listening on port 1234`);
 });
-
 
 function forwardEvent(req: Request, res: Response) {
   const setUserId = () => {

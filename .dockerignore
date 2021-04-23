@@ -1,0 +1,11 @@
+Dockerfile
+docker*.yml
+
+.git
+.gitignore
+
+.npm
+.vscode
+node_modules
+
+README.md
