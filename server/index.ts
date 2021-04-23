@@ -5,17 +5,13 @@ import cookieParser from "cookie-parser";
 import { v4 as uuidv4 } from "uuid";
 
 /** @TODO - Establish websocket used for server -> client communication */
-/** @TODO - Establish http listeners used for client -> server communication */
-/** @TODO - Set up cookies and a way to assign/retrieve user id */
 
 let machine = interpret(leanHotChocolateMachine) // Machine instance with internal state
   .onTransition((state) => {
-    console.log("onTransition() ===>", state.value);
-    // publish(state)
-  })
-  .onChange((context) => {
-    console.log('onChange() ===>', context);
-    // publish(state)
+    // publish({
+    //   state: JSON.stringify(state.value),
+    //   context: state.context
+    // })
   })
   .start();
 
