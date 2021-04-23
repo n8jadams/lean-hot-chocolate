@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import io from 'socket.io-client'
 
 /*
 Expected states
@@ -13,6 +14,12 @@ continueVoting
 
 
 */
+
+let socket = io()
+
+socket.on('state change', (msg) => {
+
+})
 
 function App() {
   return (
