@@ -3,6 +3,7 @@ import React from "react";
 import { send } from "./send";
 import { Props, User } from "./machine-types-consts";
 import { getUserById } from "./utils";
+import { EndMeetingButton } from "./EndMeetingButton";
 
 export function TopicVoting({ context, currentUserId }: Props): React.ReactElement<Props> {
 
@@ -18,6 +19,7 @@ export function TopicVoting({ context, currentUserId }: Props): React.ReactEleme
   return <>
 	<Button
 		color="primary"
+		variant="contained"
 		onClick={() => {
 			send({type: 'START_DISCUSSION'})
 		}}>
@@ -27,7 +29,7 @@ export function TopicVoting({ context, currentUserId }: Props): React.ReactEleme
 	{context.topics.map((topic) => (
 		<Card key={topic.id} variant="outlined">
 			<CardContent>
-				<meter min="0" max={context.users.length} value={topic.votesCastFor.length}></meter> 
+				<meter min="0" max={context.users.length} value={topic.votesCastFor.length}></meter>
 				<Typography>Number of votes: {topic.votesCastFor.length}</Typography>
 				<Typography variant="h5" component="h2">
 					{topic.name}
@@ -67,5 +69,6 @@ export function TopicVoting({ context, currentUserId }: Props): React.ReactEleme
 	  </Card>
 	))
 	}
+	<EndMeetingButton />
   </>;
 }

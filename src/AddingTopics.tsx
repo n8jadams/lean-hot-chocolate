@@ -1,5 +1,6 @@
 import { Button, Card, CardActions, CardContent, TextField, Typography } from '@material-ui/core';
 import React from 'react'
+import { EndMeetingButton } from './EndMeetingButton';
 import { Props } from './machine-types-consts';
 import { send } from './send';
 import { getUserById } from './utils';
@@ -56,7 +57,7 @@ export function AddingTopics({ context, currentUserId }: Props): React.ReactElem
           }}>Remove Topic</Button>
         </CardActions>}
       </Card>))}
-      
+			<EndMeetingButton />
   </>
 }
 
