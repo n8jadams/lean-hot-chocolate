@@ -24,7 +24,7 @@ type LeanHotChocolateMachineEvent =
   | {
       type: "USER_JOINED";
       username: string;
-      setUserId: () => string;
+      getUserId: () => string;
     }
   | {
       type: "START_MEETING";
@@ -134,18 +134,6 @@ export const leanHotChocolateMachine = Machine<
         }
       }),
       on: {
-        USER_JOINED: {
-          actions: assign(({ users }, { username, setUserId }) => {
-            const id = setUserId();
-
-            const newUser: User = {
-              id,
-              username,
-              topicVotesAvailable: TOTAL_AVAILABLE_TOPIC_VOTES,
-            };
-            users.push(newUser);
-          }),
-        },
         START_MEETING: {
           target: "addingTopics",
         },
@@ -335,6 +323,20 @@ export const leanHotChocolateMachine = Machine<
           target: "lobby",
         },
       },
+    },
+  },
+  on: {
+    USER_JOINED: {
+      actions: assign(({ users }, { username, getUserId }) => {
+        const id = getUserId();
+
+        const newUser: User = {
+          id,
+          username,
+          topicVotesAvailable: TOTAL_AVAILABLE_TOPIC_VOTES,
+        };
+        users.push(newUser);
+      }),
     },
   },
 });

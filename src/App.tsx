@@ -31,7 +31,7 @@ export function App() {
       return <AddingTopics context={context} currentUserId={currentUserId} />
     }
     case '"topicVoting"': {
-      return <TopicVoting context={context} />
+      return <TopicVoting context={context} currentUserId={currentUserId} />
     }
     case '{"discussion":"decrementTimer"}': {
       return <Discussion context={context} />

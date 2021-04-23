@@ -34,17 +34,17 @@ server.listen(1234, () => {
 });
 
 function forwardEvent(req: Request, res: Response) {
-  const setUserId = () => {
-    const id = uuidv4();
-    res.cookie("lean-hot-chocolate", id);
-    return id;
-  };
+
   const getUserId = () => {
-    const cookie = req.cookies["lean-hot-chocolate"];
+    let cookie = req.cookies["lean-hot-chocolate"];
+    if (!cookie) {
+      cookie = uuidv4()
+      res.cookie("lean-hot-chocolate", cookie)
+    }
     return cookie;
   };
 
-  machine.send({ ...req.body.event, setUserId, getUserId });
+  machine.send({ ...req.body.event, getUserId });
   const userId = getUserId()
   res.status(200).send({ userId });
 }

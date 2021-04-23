@@ -1,7 +1,8 @@
 import { Button, Card, CardActions, CardContent, TextField, Typography } from '@material-ui/core';
 import React from 'react'
-import { Props, User } from './machine-types-consts';
+import { Props } from './machine-types-consts';
 import { send } from './send';
+import { getUserById } from './utils';
 
 export function AddingTopics({ context, currentUserId }: Props): React.ReactElement<Props> {
 	const [topicName, setTopicName] = React.useState('')
@@ -59,6 +60,3 @@ export function AddingTopics({ context, currentUserId }: Props): React.ReactElem
   </>
 }
 
-function getUserById(id: string, users: User[]): User | undefined{
-  return users.find(user => user.id === id)
-}
