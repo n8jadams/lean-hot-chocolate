@@ -45,5 +45,6 @@ function forwardEvent(req: Request, res: Response) {
   };
 
   machine.send({ ...req.body.event, setUserId, getUserId });
-  res.status(200).send();
+  const userId = getUserId()
+  res.status(200).send({ userId });
 }

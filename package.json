@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@types/cookie-parser": "^1.4.2",
@@ -35,7 +37,7 @@
     "eject": "react-scripts eject",
     "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\"",
     "tsc": "tsc -p server/tsconfig.json --outDir dist",
-    "dev": "concurrently -n 🫀start,🧠watch-server \"npm run start\" \"npm run watch-server\""
+    "dev": "concurrently -n \"🤲 client,🧠 server\"  -c bgWhite.bold,bgGreen.bold \"npm run start\" \"npm run watch-server\""
   },
   "eslintConfig": {
     "extends": [

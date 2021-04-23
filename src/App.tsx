@@ -1,34 +1,46 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 import io from 'socket.io-client'
+import { AddingTopics } from './AddingTopics';
+import { ContinueVoting } from './ContinueVoting';
+import { Discussion } from './Discussion';
+import { Lobby } from './Lobby';
+import { initialContext, LeanHotChocolateMachineContext } from './machine-types-consts';
+import { TopicVoting } from './TopicVoting';
 
-/*
-Expected states
+export function App() {
+  const ioRef = React.useRef(io())
+  const [ state, setState ] = React.useState('"lobby"')
+  const [ context, setContext ] = React.useState<LeanHotChocolateMachineContext>(initialContext)
+  const [currentUserId, setCurrentUserId] = React.useState<string>('')
 
-lobby
-addingTopics
-topicVoting
-{"discussion":"decrementTimer"}
-continueVoting
+  React.useEffect(() => {
+    ioRef.current.on('state change', (msg) => {
+      const newState = JSON.parse(msg)
+      setState(JSON.stringify(newState.state))
+      setContext(newState.context)
+    })
+  }, [])
 
+  console.log({ state })
 
-*/
-
-let socket = io()
-
-socket.on('state change', (msg) => {
-  console.log(msg)
-})
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        Hello
-      </header>
-    </div>
-  );
+  switch(state) {
+    case '"lobby"': {
+      return <Lobby context={context} currentUserId={currentUserId} setCurrentUserId={setCurrentUserId} />
+    }
+    case '"addingTopics"': {
+      return <AddingTopics context={context} />
+    }
+    case '"topicVoting"': {
+      return <TopicVoting context={context} />
+    }
+    case '{"discussion":"decrementTimer"}': {
+      return <Discussion context={context} />
+    }
+    case '"continueVoting"': {
+      return <ContinueVoting context={context} />
+    }
+    default: {
+      return null
+    }
+  }
 }
-
-export default App;
