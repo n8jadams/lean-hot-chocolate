@@ -222,7 +222,7 @@ export const leanHotChocolateMachine = Machine<
           actions: assign(({ topics, topicVoteResults }) => {
             /** @TODO - Handle tiebreaker scenario because order of insertion isn't objective */
             const sortedTopics = topics.sort(
-              (t1, t2) => t1.votesCastFor.length - t2.votesCastFor.length
+              (t1, t2) => t2.votesCastFor.length - t1.votesCastFor.length
             );
             for (const topic of sortedTopics) {
               topicVoteResults.push(topic.id);
