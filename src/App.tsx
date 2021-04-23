@@ -28,7 +28,7 @@ export function App() {
       return <Lobby context={context} currentUserId={currentUserId} setCurrentUserId={setCurrentUserId} />
     }
     case '"addingTopics"': {
-      return <AddingTopics context={context} />
+      return <AddingTopics context={context} currentUserId={currentUserId} />
     }
     case '"topicVoting"': {
       return <TopicVoting context={context} />

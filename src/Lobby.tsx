@@ -1,4 +1,4 @@
-import { Button, TextField } from '@material-ui/core';
+import { Button, TextField, Typography } from '@material-ui/core';
 import React from 'react'
 import { Props } from './machine-types-consts';
 import { send } from './send'
@@ -32,7 +32,7 @@ export function Lobby({
 					variant="outlined"
 					value={username}
 					error={error}
-					helperText={error ? 'Username cannot be empty dude' : undefined}
+					helperText={error ? 'Username cannot be empty pal' : undefined}
 					onChange={(e) => {
 						setError(false)
 						setUsername(e.target.value)
@@ -44,7 +44,7 @@ export function Lobby({
 			</form>
 		): (
 			<>
-				<p>{context.users.length} users ready</p>
+				<Typography component="p">{context.users.length} users ready</Typography>
 				<Button variant="contained" color="primary" onClick={() => {
 					send({ type: 'START_MEETING' })
 				}}>
