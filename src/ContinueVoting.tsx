@@ -1,9 +1,9 @@
 import React from 'react'
 import { EndMeetingButton } from './EndMeetingButton';
 import { ContinueVote, Props } from './machine-types-consts';
-import { Button, Card, CardActions, CardContent, Typography } from "@material-ui/core";
+import { Button, Card, CardContent, Typography } from "@material-ui/core";
 import { getUserById } from './utils';
-import { send } from './send';
+import { send } from './utils';
 
 export function ContinueVoting({ context, currentUserId }: Props): React.ReactElement<Props> {
 	const winningTopicId = context.topicVoteResults[0]
@@ -22,7 +22,7 @@ export function ContinueVoting({ context, currentUserId }: Props): React.ReactEl
 					</Typography>
 					<Typography color="textSecondary">
 						Submitted by:{" "}
-						{getUserById(topic.createdByUserId, context.users)?.username ??
+						{getUserById(topic.createdByUser.id, context.users)?.username ??
 							""}
 					</Typography>
 				</CardContent>

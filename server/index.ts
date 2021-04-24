@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Server } from "socket.io"
 import path from 'path'
 
+const COOKIE_NAME = "lean-hot-chocolate"
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -16,15 +18,8 @@ app.use('/', express.static(path.join(__dirname, '../build')))
 const server = http.createServer(app)
 
 const io = new Server(server)
-io.on('connection', (socket) => {
-  console.log('User Connected')
-})
-
-// io.on('disconnect', () => {
-
-// })
-
-let machine = interpret(leanHotChocolateMachine) // Machine instance with internal state
+// Machine instance with internal state
+const machine = interpret(leanHotChocolateMachine)
   .onTransition((state) => {
     console.log(state.context)
     io.emit('state change', JSON.stringify({
@@ -41,10 +36,10 @@ server.listen(1234, () => {
 function forwardEvent(req: Request, res: Response) {
 
   const getUserId = () => {
-    let cookie = req.cookies["lean-hot-chocolate"];
+    let cookie = req.cookies[COOKIE_NAME];
     if (!cookie) {
       cookie = uuidv4()
-      res.cookie("lean-hot-chocolate", cookie)
+      res.cookie(COOKIE_NAME, cookie)
     }
     return cookie;
   };

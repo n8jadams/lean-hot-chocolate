@@ -2,7 +2,7 @@ import { Button, Card, CardActions, CardContent, TextField, Typography } from '@
 import React from 'react'
 import { EndMeetingButton } from './EndMeetingButton';
 import { Props } from './machine-types-consts';
-import { send } from './send';
+import { send } from './utils';
 import { getUserById } from './utils';
 
 export function AddingTopics({ context, currentUserId }: Props): React.ReactElement<Props> {
@@ -37,7 +37,7 @@ export function AddingTopics({ context, currentUserId }: Props): React.ReactElem
 					Add Topic
 				</Button>
 			</form>
-      <Button color="secondary" onClick={() => {
+      <Button color="secondary" disabled={context.topics.length === 0} onClick={() => {
             send({ type: 'READY_TO_VOTE'})
           }}>Ready To Vote</Button>
       <Typography component="p">Topics added:</Typography>
@@ -47,10 +47,10 @@ export function AddingTopics({ context, currentUserId }: Props): React.ReactElem
             {topic.name}
           </Typography>
           <Typography color="textSecondary">
-            Submitted by: {getUserById(topic.createdByUserId, context.users)?.username ?? ''}
+            Submitted by: {getUserById(topic.createdByUser.id, context.users)?.username ?? ''}
           </Typography>
         </CardContent>
-        {topic.createdByUserId === currentUserId &&
+        {topic.createdByUser.id === currentUserId &&
           <CardActions>
           <Button size="small" onClick={() => {
             send({ type: 'REMOVE_TOPIC', topicId: topic.id})

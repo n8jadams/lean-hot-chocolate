@@ -1,6 +1,6 @@
 import { Button, Card, CardActions, CardContent, Typography } from "@material-ui/core";
 import React from "react";
-import { send } from "./send";
+import { send } from "./utils";
 import { Props, User } from "./machine-types-consts";
 import { getUserById } from "./utils";
 import { EndMeetingButton } from "./EndMeetingButton";
@@ -36,7 +36,7 @@ export function TopicVoting({ context, currentUserId }: Props): React.ReactEleme
 				</Typography>
 				<Typography color="textSecondary">
 					Submitted by:{" "}
-					{getUserById(topic.createdByUserId, context.users)?.username ??
+					{getUserById(topic.createdByUser.id, context.users)?.username ??
 					""}
 				</Typography>
 			</CardContent>

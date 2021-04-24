@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from "@material-ui/core";
-import { send } from './send';
+import { send } from './utils';
 
 export function EndMeetingButton(): React.ReactElement {
 	return (

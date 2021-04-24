@@ -4,6 +4,9 @@ export type LeanHotChocolateMachineEvent =
       username: string;
     }
   | {
+    type: "USER_LEFT";
+  }
+  | {
       type: "START_MEETING";
     }
   | {
@@ -77,7 +80,7 @@ export interface User {
 interface Topic {
   id: string;
   name: string;
-  createdByUserId: string;
+  createdByUser: User;
   votesCastFor: UserId[];
 }
 

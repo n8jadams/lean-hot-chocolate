@@ -3,7 +3,7 @@ import { Props } from './machine-types-consts';
 import { Button, Card, CardContent, Typography } from "@material-ui/core";
 import { getUserById } from './utils';
 import { EndMeetingButton } from './EndMeetingButton';
-import { send } from './send'
+import { send } from './utils'
 
 export function Discussion({ context }: Props): React.ReactElement<Props> {
 	const winningTopicId = context.topicVoteResults[0]
@@ -31,7 +31,7 @@ export function Discussion({ context }: Props): React.ReactElement<Props> {
 					</Typography>
 					<Typography color="textSecondary">
 						Submitted by:{" "}
-						{getUserById(topic.createdByUserId, context.users)?.username ??
+						{getUserById(topic.createdByUser.id, context.users)?.username ??
 							""}
 					</Typography>
 				</CardContent>

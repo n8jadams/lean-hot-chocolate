@@ -27,6 +27,10 @@ type LeanHotChocolateMachineEvent =
       getUserId: () => string;
     }
   | {
+    type: "USER_LEFT";
+    getUserId: () => string;
+  }
+  | {
       type: "START_MEETING";
     }
   | {
@@ -90,7 +94,7 @@ interface User {
 interface Topic {
   id: string;
   name: string;
-  createdByUserId: string;
+  createdByUser: User;
   votesCastFor: UserId[];
 }
 
@@ -142,11 +146,12 @@ export const leanHotChocolateMachine = Machine<
     addingTopics: {
       on: {
         ADD_TOPIC: {
-          actions: assign(({ topics }, { topicName, getUserId }) => {
+          actions: assign(({ users, topics }, { topicName, getUserId }) => {
+            const createdByUser = users.find(user => user.id === getUserId())
             const newTopic: Topic = {
               id: uuidv4(),
               name: topicName,
-              createdByUserId: getUserId(),
+              createdByUser,
               votesCastFor: [],
             };
             topics.push(newTopic);
@@ -158,13 +163,14 @@ export const leanHotChocolateMachine = Machine<
               (topic) => topicId === topic.id
             );
             const userId = getUserId();
-            if (topics[indexToRemove].createdByUserId === userId) {
+            if (topics[indexToRemove].createdByUser.id === userId) {
               topics.splice(indexToRemove, 1);
             }
           }),
         },
         READY_TO_VOTE: {
           target: "topicVoting",
+          cond: ({ topics }) => topics.length > 0
         },
       },
     },
@@ -216,7 +222,7 @@ export const leanHotChocolateMachine = Machine<
               topicVoteResults.push(topic.id);
             }
           }),
-          target: "discussion",
+          target: "discussion"
         },
       },
     },
@@ -340,5 +346,21 @@ export const leanHotChocolateMachine = Machine<
         }
       }),
     },
+    USER_LEFT: {
+      actions: assign((context, { getUserId }) => {
+        const id = getUserId();
+        context.users = context.users.filter((user) => user.id !== id)
+        context.topics = context.topics.map((topic) => {
+          return {
+            ...topic,
+            votesCastFor: topic.votesCastFor.filter((vote) => vote !== id)
+          }
+        })
+        context.continueVotes = {
+          [ContinueVote.YES]: context.continueVotes[ContinueVote.YES].filter((vote) => vote !== id),
+          [ContinueVote.NO]: context.continueVotes[ContinueVote.NO].filter((vote) => vote !== id)
+        }
+      })
+    }
   },
 });

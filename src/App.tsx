@@ -1,11 +1,13 @@
 import React from 'react';
 import io from 'socket.io-client'
+import { WaitingRoom } from './WaitingRoom'
 import { AddingTopics } from './AddingTopics';
 import { ContinueVoting } from './ContinueVoting';
 import { Discussion } from './Discussion';
 import { Lobby } from './Lobby';
 import { initialContext, LeanHotChocolateMachineContext } from './machine-types-consts';
 import { TopicVoting } from './TopicVoting';
+import { send } from './utils'
 
 export function App() {
   const ioRef = React.useRef(io())
@@ -19,9 +21,23 @@ export function App() {
       setState(JSON.stringify(newState.state))
       setContext(newState.context)
     })
+
+    function handleBeforeUnload() {
+      send({ type: 'USER_LEFT' })
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      // Cleanup is probably not needed...
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
   }, [])
 
   console.log({ state })
+
+  if(!currentUserId) {
+    return <WaitingRoom setCurrentUserId={setCurrentUserId} />
+  }
 
   switch(state) {
     case '"lobby"': {
