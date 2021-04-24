@@ -1,6 +1,6 @@
 import React from 'react'
 import { Props } from './machine-types-consts';
-import { Button, Card, CardActions, CardContent, Typography } from "@material-ui/core";
+import { Button, Card, CardContent, Typography } from "@material-ui/core";
 import { getUserById } from './utils';
 import { EndMeetingButton } from './EndMeetingButton';
 import { send } from './send'
@@ -8,6 +8,10 @@ import { send } from './send'
 export function Discussion({ context }: Props): React.ReactElement<Props> {
 	const winningTopicId = context.topicVoteResults[0]
 	const topic = context.topics.find(topic => topic.id === winningTopicId)
+	
+	// We need to do this because the discussion.entry state
+	// doesn't happen immediately, fortunately it's not noticeable
+	// to the end user
 	if (!topic) {
 		return <></>
 	}
