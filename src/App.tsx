@@ -1,6 +1,6 @@
 import React from 'react';
 import io from 'socket.io-client'
-import { WaitingRoom } from './WaitingRoom'
+import { SettingUsername } from './SettingUsername'
 import { AddingTopics } from './AddingTopics';
 import { ContinueVoting } from './ContinueVoting';
 import { Discussion } from './Discussion';
@@ -33,10 +33,10 @@ export function App() {
     }
   }, [])
 
-  console.log({ state })
+  console.log({ state, context })
 
   if(!currentUserId) {
-    return <WaitingRoom setCurrentUserId={setCurrentUserId} />
+    return <SettingUsername setCurrentUserId={setCurrentUserId} />
   }
 
   switch(state) {

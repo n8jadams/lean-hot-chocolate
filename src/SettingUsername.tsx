@@ -2,13 +2,13 @@ import React from 'react'
 import { Button, TextField } from '@material-ui/core';
 import { send } from './utils'
 
-interface WaitingRoomProps {
+interface SettingUsernameProps {
 	setCurrentUserId: (userId: string) => void;
 }
 
-export function WaitingRoom({
+export function SettingUsername({
 	setCurrentUserId,
-}: WaitingRoomProps): React.ReactElement<WaitingRoomProps> {
+}: SettingUsernameProps): React.ReactElement<SettingUsernameProps> {
 	const [username, setUsername] = React.useState('')
 	const [error, setError] = React.useState(false)
 
