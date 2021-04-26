@@ -31,13 +31,15 @@
     "xstate": "^4.18.0"
   },
   "scripts": {
-    "start": "cra-build-watch",
-    "build": "react-scripts build",
+    "prestart": "rm -rf build dist",
+    "start": "yarn build:server && yarn build:client && node dist/index.js",
+    "build:client": "react-scripts build",
+    "build:server": "tsc -p server/tsconfig.json --outDir dist",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "watch-server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\"",
-    "tsc": "tsc -p server/tsconfig.json --outDir dist",
-    "dev": "concurrently -n \"🤲 client,🧠 server\"  -c bgWhite.bold,bgGreen.bold \"npm run start\" \"npm run watch-server\""
+    "dev": "concurrently -n \"🤲 client,🧠 server\"  -c bgWhite.bold,bgGreen.bold \"yarn dev:client\" \"yarn dev:server\"",
+    "dev:server": "tsc-watch --noClear -p server/tsconfig.json --outDir dist --onSuccess \"node --inspect dist/index.js\"",
+    "dev:client": "cra-build-watch"
   },
   "eslintConfig": {
     "extends": [

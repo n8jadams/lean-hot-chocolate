@@ -47,7 +47,7 @@ export function AddingTopics({ context, currentUserId }: Props): React.ReactElem
             {topic.name}
           </Typography>
           <Typography color="textSecondary">
-            Submitted by: {getUserById(topic.createdByUser.id, context.users)?.username ?? ''}
+            Submitted by: {topic.createdByUser?.username ?? ''}
           </Typography>
         </CardContent>
         {topic.createdByUser.id === currentUserId &&
