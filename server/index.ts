@@ -44,7 +44,7 @@ function forwardEvent(req: Request, res: Response) {
     return cookie;
   };
 
-  machine.send({ ...req.body.event, getUserId });
-  const userId = getUserId()
-  res.status(200).send({ userId });
+  const currentUserId = getUserId()
+  machine.send({ ...req.body.event, currentUserId });
+  res.status(200).send({ userId: currentUserId });
 }

@@ -24,11 +24,11 @@ type LeanHotChocolateMachineEvent =
   | {
       type: "USER_JOINED";
       username: string;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
     type: "USER_LEFT";
-    getUserId: () => string;
+    currentUserId: string;
   }
   | {
       type: "START_MEETING";
@@ -36,12 +36,12 @@ type LeanHotChocolateMachineEvent =
   | {
       type: "ADD_TOPIC";
       topicName: string;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "REMOVE_TOPIC";
       topicId: string;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "READY_TO_VOTE";
@@ -49,12 +49,12 @@ type LeanHotChocolateMachineEvent =
   | {
       type: "PLACE_TOPIC_VOTE";
       topicId: string;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "RETRACT_TOPIC_VOTE";
       topicId: string;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "START_DISCUSSION";
@@ -65,11 +65,11 @@ type LeanHotChocolateMachineEvent =
   | {
       type: "PLACE_CONTINUE_VOTE";
       value: ContinueVote;
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "RETRACT_CONTINUE_VOTE";
-      getUserId: () => string;
+      currentUserId: string;
     }
   | {
       type: "END_CONTINUE_VOTING";
@@ -146,8 +146,8 @@ export const leanHotChocolateMachine = Machine<
     addingTopics: {
       on: {
         ADD_TOPIC: {
-          actions: assign(({ users, topics }, { topicName, getUserId }) => {
-            const createdByUser = users.find(user => user.id === getUserId())
+          actions: assign(({ users, topics }, { topicName, currentUserId }) => {
+            const createdByUser = users.find(user => user.id === currentUserId)
             const newTopic: Topic = {
               id: uuidv4(),
               name: topicName,
@@ -158,12 +158,11 @@ export const leanHotChocolateMachine = Machine<
           }),
         },
         REMOVE_TOPIC: {
-          actions: assign(({ topics }, { topicId, getUserId }) => {
+          actions: assign(({ topics }, { topicId, currentUserId }) => {
             const indexToRemove = topics.findIndex(
               (topic) => topicId === topic.id
             );
-            const userId = getUserId();
-            if (topics[indexToRemove].createdByUser.id === userId) {
+            if (topics[indexToRemove].createdByUser.id === currentUserId) {
               topics.splice(indexToRemove, 1);
             }
           }),
@@ -177,9 +176,8 @@ export const leanHotChocolateMachine = Machine<
     topicVoting: {
       on: {
         PLACE_TOPIC_VOTE: {
-          actions: assign(({ users, topics }, { topicId, getUserId }) => {
-            const userId = getUserId();
-            const userIndex = users.findIndex((user) => userId === user.id);
+          actions: assign(({ users, topics }, { topicId, currentUserId }) => {
+            const userIndex = users.findIndex((user) => currentUserId === user.id);
             const user = users[userIndex];
             if (user && user.topicVotesAvailable > 0) {
               const topicIndex = topics.findIndex(
@@ -187,15 +185,14 @@ export const leanHotChocolateMachine = Machine<
               );
               if (topicIndex !== -1) {
                 user.topicVotesAvailable--;
-                topics[topicIndex].votesCastFor.push(userId);
+                topics[topicIndex].votesCastFor.push(currentUserId);
               }
             }
           }),
         },
         RETRACT_TOPIC_VOTE: {
-          actions: assign(({ users, topics }, { topicId, getUserId }) => {
-            const userId = getUserId();
-            const userIndex = users.findIndex((user) => userId === user.id);
+          actions: assign(({ users, topics }, { topicId, currentUserId }) => {
+            const userIndex = users.findIndex((user) => currentUserId === user.id);
             const user = users[userIndex];
             if (user) {
               const topicIndex = topics.findIndex(
@@ -203,7 +200,7 @@ export const leanHotChocolateMachine = Machine<
               );
               const topic = topics[topicIndex];
               const voteCastIndex = topic.votesCastFor.findIndex(
-                (vote) => vote === userId
+                (vote) => vote === currentUserId
               );
               if (topicIndex !== -1 && voteCastIndex !== -1) {
                 user.topicVotesAvailable++;
@@ -282,27 +279,25 @@ export const leanHotChocolateMachine = Machine<
       id: "continueVoting",
       on: {
         PLACE_CONTINUE_VOTE: {
-          actions: assign(({ continueVotes }, { value, getUserId }) => {
+          actions: assign(({ continueVotes }, { value, currentUserId }) => {
             const oppositeVote =
               value === ContinueVote.YES ? ContinueVote.NO : ContinueVote.YES;
-            const userId = getUserId();
-            if (!continueVotes[value].includes(userId)) {
+            if (!continueVotes[value].includes(currentUserId)) {
               continueVotes[oppositeVote] = continueVotes[oppositeVote].filter(
-                (votedForUserId) => votedForUserId !== userId
+                (votedForUserId) => votedForUserId !== currentUserId
               );
-              continueVotes[value].push(userId);
+              continueVotes[value].push(currentUserId);
             }
           }),
         },
         RETRACT_CONTINUE_VOTE: {
-          actions: assign(({ continueVotes }, { getUserId }) => {
-            const userId = getUserId();
+          actions: assign(({ continueVotes }, { currentUserId }) => {
             continueVotes[ContinueVote.YES] = continueVotes[
               ContinueVote.YES
-            ].filter((votedForUserId) => votedForUserId !== userId);
+            ].filter((votedForUserId) => votedForUserId !== currentUserId);
             continueVotes[ContinueVote.NO] = continueVotes[
               ContinueVote.NO
-            ].filter((votedForUserId) => votedForUserId !== userId);
+            ].filter((votedForUserId) => votedForUserId !== currentUserId);
           }),
         },
         END_CONTINUE_VOTING: [
@@ -324,21 +319,17 @@ export const leanHotChocolateMachine = Machine<
             }),
             target: "discussion",
           },
-        ],
-        END_MEETING: {
-          target: "lobby",
-        },
+        ]
       },
     },
   },
   on: {
     USER_JOINED: {
-      actions: assign(({ users }, { username, getUserId }) => {
-        const id = getUserId();
-        const userExists = users.some(user => user.id === id)
+      actions: assign(({ users }, { username, currentUserId }) => {
+        const userExists = users.some(user => user.id === currentUserId)
         if(!userExists) {
           const newUser: User = {
-            id,
+            id: currentUserId,
             username,
             topicVotesAvailable: TOTAL_AVAILABLE_TOPIC_VOTES,
           };
@@ -347,20 +338,22 @@ export const leanHotChocolateMachine = Machine<
       }),
     },
     USER_LEFT: {
-      actions: assign((context, { getUserId }) => {
-        const id = getUserId();
-        context.users = context.users.filter((user) => user.id !== id)
+      actions: assign((context, { currentUserId }) => {
+        context.users = context.users.filter((user) => user.id !== currentUserId)
         context.topics = context.topics.map((topic) => {
           return {
             ...topic,
-            votesCastFor: topic.votesCastFor.filter((vote) => vote !== id)
+            votesCastFor: topic.votesCastFor.filter((vote) => vote !== currentUserId)
           }
         })
         context.continueVotes = {
-          [ContinueVote.YES]: context.continueVotes[ContinueVote.YES].filter((vote) => vote !== id),
-          [ContinueVote.NO]: context.continueVotes[ContinueVote.NO].filter((vote) => vote !== id)
+          [ContinueVote.YES]: context.continueVotes[ContinueVote.YES].filter((vote) => vote !== currentUserId),
+          [ContinueVote.NO]: context.continueVotes[ContinueVote.NO].filter((vote) => vote !== currentUserId)
         }
       })
+    },
+    END_MEETING: {
+      target: "lobby",
     }
   },
 });
